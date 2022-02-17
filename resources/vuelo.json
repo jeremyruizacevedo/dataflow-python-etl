@@ -1,0 +1,37 @@
+[
+    {
+        "name": "cod_avion",
+        "type": "STRING",
+        "description": "cod_avion"
+    },
+    {
+        "name": "capacidad",
+        "type": "STRING",
+        "description": "capacidad"
+    },
+    {
+        "name": "cod_tripulacion",
+        "type": "STRING",
+        "description": "cod_tripulacion"
+    },
+    {
+        "name": "cod_piloto",
+        "type": "STRING",
+        "description": "cod_piloto"
+    },
+    {
+        "name": "cod_vuelo",
+        "type": "STRING",
+        "description": "cod_vuelo"
+    },
+    {
+        "name": "horario_salida",
+        "type": "STRING",
+        "description": "horario_salida"
+    },
+    {
+        "name": "horario_llegada",
+        "type": "STRING",
+        "description": "horario_llegada"
+    }
+]

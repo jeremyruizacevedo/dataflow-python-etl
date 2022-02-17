@@ -1,0 +1,47 @@
+[
+    {
+        "name": "codigo_aerolinea",
+        "type": "STRING",
+        "description": "Codigo aerolinea"
+    },
+    {
+        "name": "cod_avion",
+        "type": "STRING",
+        "description": "Codigo avion"
+    },
+    {
+        "name": "asiento",
+        "type": "STRING",
+        "description": "Asiento"
+    },
+    {
+        "name": "dni",
+        "type": "STRING",
+        "description": "Documento Nacional de Identidad del pasajero"
+    },
+    {
+        "name": "monto",
+        "type": "FLOAT",
+        "description": "Monto"
+    },
+    {
+        "name": "estado",
+        "type": "STRING",
+        "description": "Estado"
+    },
+    {
+        "name": "fecha_reserva",
+        "type": "TIMESTAMP",
+        "description": "Fecha de la reserva"
+    },
+    {
+        "name": "fecha_compra",
+        "type": "TIMESTAMP",
+        "description": "Fecha de la compra"
+    },
+    {
+        "name": "categoria",
+        "type": "STRING",
+        "description": "Categoria"
+    }
+]

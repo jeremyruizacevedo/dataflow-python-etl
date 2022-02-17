@@ -1,0 +1,32 @@
+[
+    {
+        "name": "dni",
+        "type": "STRING",
+        "description": "Documento Nacional de Identidad del pasajero"
+    },
+    {
+        "name": "nombre_completo",
+        "type": "STRING",
+        "description": "Nombre completo del pasajero"
+    },
+    {
+        "name": "correo_electronico",
+        "type": "STRING",
+        "description": "Correo electrónico del pasajero"
+    },
+    {
+        "name": "direccion",
+        "type": "STRING",
+        "description": "Dirección del pasajero"
+    },
+    {
+        "name": "telefono",
+        "type": "INTEGER",
+        "description": "Telefono del pasajero"
+    },
+    {
+        "name": "fecha_de_nacimiento",
+        "type": "DATE",
+        "description": "Fecha de nacimiento del pasajero"
+    }
+]

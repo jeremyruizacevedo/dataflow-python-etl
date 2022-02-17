@@ -1,0 +1,107 @@
+[
+    {
+        "name": "codigo_aerolinea",
+        "type": "STRING",
+        "description": "Codigo aerolinea"
+    },
+    {
+        "name": "capacidad",
+        "type": "STRING",
+        "description": "capacidad"
+    },
+    {
+        "name": "cod_tripulacion",
+        "type": "STRING",
+        "description": "cod_tripulacion"
+    },
+    {
+        "name": "cod_piloto",
+        "type": "STRING",
+        "description": "cod_piloto"
+    },
+    {
+        "name": "cod_vuelo",
+        "type": "STRING",
+        "description": "cod_vuelo"
+    },
+    {
+        "name": "horario_salida",
+        "type": "STRING",
+        "description": "horario_salida"
+    },
+    {
+        "name": "horario_llegada",
+        "type": "STRING",
+        "description": "horario_llegada"
+    },
+    {
+        "name": "cod_avion",
+        "type": "STRING",
+        "description": "Codigo avion"
+    },
+    {
+        "name": "asiento",
+        "type": "STRING",
+        "description": "Asiento"
+    },
+    {
+        "name": "dni",
+        "type": "STRING",
+        "description": "Documento Nacional de Identidad del pasajero"
+    },
+    {
+        "name": "nombre_completo",
+        "type": "STRING",
+        "description": "Nombre completo del pasajero"
+    },
+    {
+        "name": "correo_electronico",
+        "type": "STRING",
+        "description": "Correo electrónico del pasajero"
+    },
+    {
+        "name": "direccion",
+        "type": "STRING",
+        "description": "Dirección del pasajero"
+    },
+    {
+        "name": "telefono",
+        "type": "INTEGER",
+        "description": "Telefono del pasajero"
+    },
+    {
+        "name": "fecha_de_nacimiento",
+        "type": "DATE",
+        "description": "Fecha de nacimiento del pasajero"
+    },
+    {
+        "name": "monto",
+        "type": "FLOAT",
+        "description": "Monto"
+    },
+    {
+        "name": "estado",
+        "type": "STRING",
+        "description": "Estado"
+    },
+    {
+        "name": "fecha_reserva",
+        "type": "TIMESTAMP",
+        "description": "Fecha de la reserva"
+    },
+    {
+        "name": "fecha_compra",
+        "type": "TIMESTAMP",
+        "description": "Fecha de la compra"
+    },
+    {
+        "name": "categoria",
+        "type": "STRING",
+        "description": "Categoria"
+    },
+    {
+        "name": "compensacion",
+        "type": "STRING",
+        "description": "Compensacion"
+    }
+]

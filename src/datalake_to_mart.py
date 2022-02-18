@@ -19,6 +19,7 @@ BigQuery table.
 
 
 import argparse
+from datetime import datetime as dt
 import logging
 import os
 import traceback
@@ -27,6 +28,8 @@ import apache_beam as beam
 from apache_beam.io.gcp.bigquery import parse_table_schema_from_json
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.pvalue import AsDict
+from google.cloud import bigquery
+
 
 
 class DataLakeToDataMart:
@@ -47,10 +50,10 @@ class DataLakeToDataMart:
             # Wrapping the schema in fields is required for the BigQuery API.
             self.schema_str = '{"fields": ' + data + '}'
 
-    def get_ventas_query(self):
+    def get_ventas_query(self, project):
         """This returns a query. simulate a fact table in a typical
         data warehouse."""
-        ventas_query = """
+        ventas_query = f"""
         SELECT
             codigo_aerolinea,
             cod_avion,
@@ -62,7 +65,7 @@ class DataLakeToDataMart:
             fecha_compra,
             categoria
         FROM
-            `myapp-8d531.lake.venta` venta
+            `{project}.lake.venta` venta
         """
         return ventas_query
 
@@ -108,6 +111,9 @@ def run(argv=None):
     parser.add_argument('--output', dest='output', required=False,
                         help='Output BQ table to write results to.',
                         default='lake.schema_prod')
+    parser.add_argument('--project', dest='project', required=False,
+                        help='ID project',
+                        default='project')
 
     # Parse arguments from the command line.
     known_args, pipeline_args = parser.parse_known_args(argv)
@@ -118,8 +124,24 @@ def run(argv=None):
 
     p = beam.Pipeline(options=PipelineOptions(pipeline_args))
     schema = parse_table_schema_from_json(data_lake_to_data_mart.schema_str)
-    #pipeline = beam.Pipeline(options=PipelineOptions(pipeline_args))
-    #pipeline2 = beam.Pipeline(options=PipelineOptions(pipeline_args))
+
+    def get_absolute_value_amount(element):
+        if 'monto' in element:
+            element["monto"] = abs(element["monto"])
+        return element
+    
+    def obfuscate_data(element):
+        if 'nombre_completo' in element:
+            name = element["nombre_completo"].split(" ")[0]
+            last_name = " ".join(element["nombre_completo"].split(" ")[1:])
+            obfuscated_last_name = ""
+            for x in last_name:
+                if x not in (last_name[0], " "):
+                    obfuscated_last_name += "*"
+                else:
+                    obfuscated_last_name += x
+            element["nombre_completo"] = name + " " + obfuscated_last_name
+        return element
 
     # This query returns details about the account, normalized into a
     # different table.  We will be joining the data in to the main orders dataset in order
@@ -127,11 +149,11 @@ def run(argv=None):
     pasajero_source = (
         p
         | 'Read Pasajero from BigQuery ' >> beam.io.Read(
-            beam.io.BigQuerySource(query="""
+            beam.io.BigQuerySource(query=f"""
                 SELECT
                   *
                 FROM
-                  `myapp-8d531.lake.pasajero`""",
+                  `{known_args.project}.lake.pasajero`""",
                                    # This next stage of the pipeline maps the acct_number to a single row of
                                    # results from BigQuery.  Mapping this way helps Dataflow move your data around
                                    # to different workers.  When later stages of the pipeline run, all results from
@@ -145,13 +167,13 @@ def run(argv=None):
     vuelo_source = (
         p
         | 'Read Vuelo from BigQuery ' >> beam.io.Read(
-            beam.io.BigQuerySource(query="""
+            beam.io.BigQuerySource(query=f"""
                 select cod_avion, capacidad, cod_tripulacion, cod_piloto, cod_vuelo, horario_salida, horario_llegada
                 from (
                     SELECT 
                         cod_avion, capacidad, cod_tripulacion, cod_piloto, cod_vuelo, horario_salida, horario_llegada,
                         row_number() over (partition by cod_vuelo order by cod_tripulacion asc) as rn
-                    FROM `myapp-8d531.lake.vuelo`
+                    FROM `{known_args.project}.lake.vuelo`
                 )
                 where rn = 1;
             """,
@@ -165,7 +187,7 @@ def run(argv=None):
                 row['cod_avion'], row
             )))
 
-    ventas_query = data_lake_to_data_mart.get_ventas_query()
+    ventas_query = data_lake_to_data_mart.get_ventas_query(known_args.project)
     (p
      # Read the orders from BigQuery.  This is the source of the pipeline.  All further
      # processing starts with rows read from the query results here.
@@ -173,10 +195,13 @@ def run(argv=None):
         beam.io.BigQuerySource(query=ventas_query, use_standard_sql=True))
      # Here we pass in a side input, which is data that comes from outside our
      # main source.  The side input contains a map of states to their full name
-     | 'Join Ventas with Pasajero' >> beam.Map(data_lake_to_data_mart.add_pasajero, AsDict(
+     | 'Join with Pasajero' >> beam.Map(data_lake_to_data_mart.add_pasajero, AsDict(
         pasajero_source))
-     | 'Join Ventas with Vuelo' >> beam.Map(data_lake_to_data_mart.add_vuelo, AsDict(
-        vuelo_source))
+     | 'Join with Vuelo' >> beam.Map(data_lake_to_data_mart.add_vuelo, AsDict(
+        vuelo_source)) 
+     # | 'Set compensation' >> beam.Map(lambda s: set_compensation_value(s))
+     | 'Abs amount' >> beam.Map(lambda s: get_absolute_value_amount(s))
+     | 'Obfuscate last name' >> beam.Map(lambda s: obfuscate_data(s))
      # This is the final stage of the pipeline, where we define the destination
      # of the data.  In this case we are writing to BigQuery.
      | 'Write Data to BigQuery' >> beam.io.Write(
@@ -191,6 +216,7 @@ def run(argv=None):
             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
             # Deletes all data in the BigQuery table before writing.
             write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE)))
+
     p.run().wait_until_finish()
 
 

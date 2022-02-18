@@ -83,11 +83,8 @@ def run(argv=None):
     # we have the input file to load and the output table to write to.
     parser.add_argument(
         '--input', dest='input', required=False,
-        help='Input file to read.  This can be a local file or '
-             'a file in a Google Storage Bucket.',
-        # This example file contains a total of only 10 lines.
-        # It is useful for developing on a small set of data
-        default='gs://myapp-8d531/data_files/pasajero.csv,gs://myapp-8d531/data_files/vuelo.csv,gs://myapp-8d531/data_files/venta.csv')
+        help='Input file to read.  This can be a local file or a file in a Google Storage Bucket.',
+        default='gs://<PROJECT>/data_files/pasajero.csv,gs://<PROJECT>/data_files/vuelo.csv,gs://<PROJECT>/data_files/venta.csv')
     # This defaults to the temp dataset in your BigQuery project.  You'll have
     # to create the temp dataset yourself using bq mk temp
     parser.add_argument('--output', dest='output', required=False,

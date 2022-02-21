@@ -50,7 +50,7 @@ class DataLakeToDataMart:
             # Wrapping the schema in fields is required for the BigQuery API.
             self.schema_str = '{"fields": ' + data + '}'
 
-    def get_ventas_query(self, project):
+    def get_ventas_query(self, pj):
         """This returns a query. simulate a fact table in a typical
         data warehouse."""
         ventas_query = f"""
@@ -65,7 +65,7 @@ class DataLakeToDataMart:
             fecha_compra,
             categoria
         FROM
-            `{project}.lake.venta` venta
+            `{pj}.lake.venta` venta
         """
         return ventas_query
 
@@ -111,9 +111,9 @@ def run(argv=None):
     parser.add_argument('--output', dest='output', required=False,
                         help='Output BQ table to write results to.',
                         default='lake.schema_prod')
-    parser.add_argument('--project', dest='project', required=False,
+    parser.add_argument('--pj', dest='pj', required=False,
                         help='ID project',
-                        default='project')
+                        default='pj')
 
     # Parse arguments from the command line.
     known_args, pipeline_args = parser.parse_known_args(argv)
@@ -153,7 +153,7 @@ def run(argv=None):
                 SELECT
                   *
                 FROM
-                  `{known_args.project}.lake.pasajero`""",
+                  `{known_args.pj}.lake.pasajero`""",
                                    # This next stage of the pipeline maps the acct_number to a single row of
                                    # results from BigQuery.  Mapping this way helps Dataflow move your data around
                                    # to different workers.  When later stages of the pipeline run, all results from
@@ -173,7 +173,7 @@ def run(argv=None):
                     SELECT 
                         cod_avion, capacidad, cod_tripulacion, cod_piloto, cod_vuelo, horario_salida, horario_llegada,
                         row_number() over (partition by cod_vuelo order by cod_tripulacion asc) as rn
-                    FROM `{known_args.project}.lake.vuelo`
+                    FROM `{known_args.pj}.lake.vuelo`
                 )
                 where rn = 1;
             """,
@@ -187,7 +187,7 @@ def run(argv=None):
                 row['cod_avion'], row
             )))
 
-    ventas_query = data_lake_to_data_mart.get_ventas_query(known_args.project)
+    ventas_query = data_lake_to_data_mart.get_ventas_query(known_args.pj)
     (p
      # Read the orders from BigQuery.  This is the source of the pipeline.  All further
      # processing starts with rows read from the query results here.

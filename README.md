@@ -122,11 +122,11 @@ Ejecute los siguientes comandos:
 Para todas las condiciones en el ejercicio 2 excepto lo de compensacion
 
 ``` bash
-python src/datalake_to_mart.py --worker_disk_type="compute.googleapis.com/projects//zones//diskTypes/pd-ssd" --max_num_workers=4 --project=$PROJECT --runner=DataflowRunner --save_main_session --region=us-central1 --experiment use_unsupported_python_version
+python src/datalake_to_mart.py --project=$PROJECT --runner=DataflowRunner --save_main_session --region=us-central1 --experiment use_unsupported_python_version --pj $PROJECT
 ```
 
 Para concluir, corremos el siguiente comando para dar valor a la columna compensación
 
 ``` bash
-python src/datalake_compensation.py --worker_disk_type="compute.googleapis.com/projects//zones//diskTypes/pd-ssd" --max_num_workers=4 --project=$PROJECT --runner=DataflowRunner --save_main_session --region=us-central1 --experiment use_unsupported_python_version
+python src/datalake_compensation.py --project=$PROJECT --runner=DataflowRunner --save_main_session --region=us-central1 --experiment use_unsupported_python_version --pj $PROJECT
 ```

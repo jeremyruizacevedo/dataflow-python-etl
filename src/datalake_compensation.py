@@ -50,14 +50,14 @@ class DataLakeToDataMart:
             # Wrapping the schema in fields is required for the BigQuery API.
             self.schema_str = '{"fields": ' + data + '}'
 
-    def get_schema_prod(self, project):
+    def get_schema_prod(self, pj):
         """This returns a query. simulate a fact table in a typical
         data warehouse."""
         schema_prod_query = f"""
         SELECT
             *
         FROM
-            `{project}.lake.schema_prod`
+            `{pj}.lake.schema_prod`
         """
         return schema_prod_query
 
@@ -71,9 +71,9 @@ def run(argv=None):
     parser.add_argument('--output', dest='output', required=False,
                         help='Output BQ table to write results to.',
                         default='lake.schema_prod')
-    parser.add_argument('--project', dest='project', required=False,
+    parser.add_argument('--pj', dest='pj', required=False,
                     help='ID project',
-                    default='project')
+                    default='pj')
 
     # Parse arguments from the command line.
     known_args, pipeline_args = parser.parse_known_args(argv)
@@ -98,7 +98,7 @@ def run(argv=None):
                 num_tickets_query = f"""
                     SELECT 
                     cast(count(1) /20 as int64)*3 num_tickets_pref_disp
-                    FROM `{known_args.project}.lake.schema_prod`
+                    FROM `{known_args.pj}.lake.schema_prod`
                     where cod_vuelo = "{element['cod_vuelo']}";
                 """
                 logging.error(num_tickets_query)
@@ -106,7 +106,7 @@ def run(argv=None):
                 num_tickets_dados_query = f"""
                     SELECT 
                     count(1) num_tickets_dados
-                    FROM `{known_args.project}.lake.schema_prod`
+                    FROM `{known_args.pj}.lake.schema_prod`
                     where cod_vuelo = "{element['cod_vuelo']}" and compensacion in ("ASISTENCIA_PREFERENCIAL", "ASIENTO_PREFERENCIAL");
                 """
                 logging.error(num_tickets_dados_query)
@@ -130,9 +130,9 @@ def run(argv=None):
                         compensacion = "ASIENTO_PREFERENCIAL"
                     
                     update_query = f"""
-                    update `{known_args.project}.lake.schema_prod`
+                    update `{known_args.pj}.lake.schema_prod`
                     set compensacion = "{compensacion}"
-                    FROM `{known_args.project}.lake.schema_prod`
+                    FROM `{known_args.pj}.lake.schema_prod`
                     where cod_vuelo = "{element['cod_vuelo']}" and dni = "{element['dni']}";
                     """
                     logging.error(update_query)
@@ -142,7 +142,7 @@ def run(argv=None):
         return element
 
 
-    schema_prod_query = data_lake_to_data_mart.get_schema_prod(known_args.project)
+    schema_prod_query = data_lake_to_data_mart.get_schema_prod(known_args.pj)
     (
         p
         # Read the orders from BigQuery.  This is the source of the pipeline.  All further
